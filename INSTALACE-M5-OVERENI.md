@@ -8,7 +8,8 @@ Distribuční ZIP byl rozbalen do nové složky s mezerami v cestě. Instalátor
 
 - Instalace Pythonu a všech knihoven z lokálního balíčku: úspěch.
 - MLX 0.32.4, MFLUX 0.23.0 a skutečný výpočet na Metal GPU: úspěch.
-- Všech 28 automatických testů: úspěch (14,85 s).
+- Všech 29 automatických testů: úspěch.
+- Spuštění nativní aplikace z nové složky: úspěch. Instalátor opravuje zděděný příznak skrytých souborů, který jinak brání Qt najít Cocoa plugin; test ověřuje zachování karantény stažených souborů i nedotčenost souborů mimo prostředí.
 - Kompletní model byl pro offline test zkopírován z již stažených vah; instalátor ověřil všechny soubory a jejich kontrolní součty. Nové stažení 4,6 GB v tomto testu nebylo opakováno.
 - První skutečné kolorování veřejného testovacího snímku skimage.data.camera, 512 × 512, seed 42: úspěch bez internetu. Generování 33,60 s, přenos barev 0,49 s, špička alokací MLX 5,56 GB. Výstup 16bitový PNG v rozlišení originálu.
 - Výpočetní maximální odchylka L* při přenosu barev: 0,0000029; údaj se týká pracovního obrazu před kvantizací při uložení.
