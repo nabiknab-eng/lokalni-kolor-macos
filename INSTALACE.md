@@ -1,38 +1,61 @@
-# Instalace, přenos a odinstalace
+# Instalace bicolor 1.9.1
 
-## Požadavky
+[Popis programu](README.md) · [Ovládání a práce s fotografiemi](NAVOD.md)
 
-- Apple Silicon M5, alespoň 16 GB sjednocené paměti.
-- macOS 26 nebo novější; běžná uživatelská oprávnění a možnost spouštět vlastní aplikace.
-- Přibližně 8 GiB volného místa. Váhy zabírají asi 4,6 GB, knihovny a Python další prostor.
-- Internet při prvním stažení vah; při instalaci ze zdrojového ZIPu také pro Python a knihovny. Soukromý repozitář vyžaduje při stahování vydání GitHub přihlášení s přístupem k repozitáři. Samotná aplikace přihlášení nepotřebuje.
+## Před instalací
 
-## Doporučený postup
+Tato sestava vyžaduje **Mac s Apple Silicon M1 nebo novějším, macOS 26 nebo novější a alespoň 16 GB RAM**. Pro instalaci doporučujeme alespoň **12 GiB volného místa**, navíc prostor na vlastní fotografie a výsledky. První instalace potřebuje internet ke stažení přibližně **314 MB knihoven z PyPI** a **4,62 GB modelových souborů z Hugging Face**.
 
-Stáhněte z GitHub Releases soubor `LokalniKolor-1.1.0-macOS-arm64.zip`, rozbalte jej a celou složku uložte na stálé zapisovatelné místo. Dvojklikem otevřete `Instalovat.command`. Skript ověří architekturu, systém a kontrolní součty, rozbalí vlastní Python, vytvoří izolované prostředí, nainstaluje přibalené knihovny a ověří výpočet na Metal GPU. Nakonec stáhne a ověří veřejné modelové váhy a otevře aplikaci.
+Samostatná instalace Pythonu, Homebrew ani vývojářských nástrojů není potřeba. Balíček obsahuje vlastní běhové prostředí Pythonu. Instalátor automaticky stáhne přesně připnuté knihovny z oficiálního PyPI a ověří jejich SHA-256; vše připraví uvnitř složky programu. Nepotřebuje přístupový token Hugging Face ani účet pro cloudové AI API.
 
-Terminál se používá pouze k zobrazení průběhu instalace; žádné příkazy se ručně nezadávají. Výpočty později spouštějte dvojklikem na `Lokální Kolor.app`. Model se zbytečně znovu nestahuje. Přerušené stahování velkých vah pokračuje z dočasného souboru při opětovném spuštění instalace.
+## Postup
 
-Pokud macOS oznámí, že aplikaci nebo skript nemůže otevřít kvůli neověřenému vývojáři, použijte standardní postup macOS pro povolení konkrétní stažené aplikace v **Nastavení systému → Soukromí a zabezpečení → Přesto otevřít**. Volba se může zobrazit až po prvním pokusu o otevření. Ve spravovaném firemním Macu může být potřeba souhlas správce s použitím vlastní aplikace. Instalátor neobchází Gatekeeper a nevypíná systémové ochrany.
+1. Na GitHubu otevři **[Releases](https://github.com/nabiknab-eng/lokalni-kolor-macos/releases/latest)** a v části **Assets** stáhni **`bicolor-1.9.1-macOS-arm64.zip`**. Ve stejném vydání je kontrolní součet SHA-256.
+2. ZIP rozbal ve Finderu. Vzniklou složku **bicolor-1.9.1** přesuň na trvalé místo, kde máš právo zapisovat, například do své složky Aplikace.
+3. Uvnitř této složky spusť **Instalovat.command**. Otevře se okno Terminálu s průběhem instalace.
+4. Nech instalátor dokončit ověření balíčku, přípravu prostředí, kontrolu Metal GPU a stažení modelu. Složku během instalace nepřejmenovávej ani nepřesouvej.
+5. Po hlášení o dokončení spouštěj **bicolor.app** dvojklikem. Instalační příkaz není potřeba pouštět při každém použití.
 
-## Co obsahuje složka
+**Automatické Source code (zip/tar.gz) ani Code → Download ZIP nejsou instalátor.** Vyber výslovně výše uvedený soubor `bicolor-1.9.1-macOS-arm64.zip` v Assets.
 
-- `.python/`: vlastní CPython 3.12, oficiální sestava python-build-standalone pro Apple Silicon.
-- `.venv/`: lokální knihovny, včetně MFLUX a MLX; systémový Python se nemění.
-- `wheelhouse/`: instalační balíčky přibalené do vydání. Ve zdrojovém repozitáři nejsou.
-- `modely/flux2-klein-4b-4bit/`: kompletní lokální váhy. Soubory LFS se ověřují SHA-256.
-- `runtime/`: pracovní návrhy, cache a logy; `vysledky/`: výchozí výsledky. Tyto složky zůstávají pouze na vašem Macu.
+**Ponech celou instalační složku pohromadě.** Soubor bicolor.app potřebuje sousední programové soubory, prostředí, knihovny a model. Při pozdějším přesouvání nejprve aplikaci zavři a přesuň celou složku.
 
-Výpočet používá nativní Qwen3-4B textový enkodér, uložený embedding promptu a úsporný strip VAE dekodér. PyTorch není nainstalován; MFLUX se instaluje z přiloženého, hashovaného wheelu bez jeho volitelně nepotřebných automatických závislostí. `pip check` může kvůli metadatům MFLUX hlásit chybějící torch. Skutečná inference probíhá v MLX a je ověřena samostatně.
+## Pokud spuštění zablokuje macOS
 
-## Přenos již nainstalované aplikace bez internetu
+Tato distribuce nemá podpis Apple Developer ID ani notarizaci Apple. macOS proto může při prvním otevření instalátoru nebo aplikace zobrazit upozornění na neověřeného vývojáře.
 
-Ukončete aplikaci a přeneste **celou složku včetně skrytých `.python` a `.venv` a složky `modely`**, nejlépe pomocí archivu vytvořeného Finderem. Potom aplikaci otevřete v nové poloze. Spouštěč opravuje cesty prostředí automaticky. Pokud je potřeba znovu připravit prostředí z přibalených knihoven, `Instalovat.command --offline` provede kontrolu bez stahování; tento volitelný argument se zadává v Terminálu.
+Po pokusu o spuštění otevři **Nastavení systému → Soukromí a zabezpečení**. Pokud této konkrétní stažené kopii důvěřuješ a ověřil jsi její původ, použij pro ni **Přesto otevřít** a potvrď následující systémový dialog. Postup popisuje [oficiální návod Apple](https://support.apple.com/102445).
 
-Neodstraňujte soubory `.dist-info` z `.venv`; obsahují informace o instalovaných knihovnách. Aplikace umí chybějící diagnostická metadata MFLUX bezpečně nahradit údaji z připnutého manifestu, ale správně dokončená instalace je vždy obnoví.
+Pokud systém hlásí poškozený nebo neúplný soubor, stáhni balíček znovu a porovnej jeho kontrolní součet. U spravovaného pracovního Macu mohou spuštění omezovat pravidla správce.
 
-## Diagnostika a odinstalace
+## Co se instaluje a stahuje
 
-`Diagnostika.command` ověří knihovny, model a malý skutečný výpočet na Metal GPU bez generování fotografie. Chyby aplikace jsou v `runtime/aplikace.log` a `runtime/worker.log`.
+| Součást | Zdroj a umístění |
+| --- | --- |
+| Aplikace a běhové prostředí Pythonu | Přibalené v instalačním ZIPu; instalují se do jeho složky |
+| Knihovny včetně Qt/PySide6 a MLX | První instalace automaticky stáhne přesně určené balíčky z PyPI, asi 314 MB; kontroluje SHA-256 |
+| Model FLUX.2 Klein 4B q4 | První instalace stáhne veřejné soubory z Hugging Face, přibližně 4,62 GB |
+| Modelové váhy | `modely/flux2-klein-4b-4bit` uvnitř instalační složky |
+| Předvolby a pracovní soubory | `runtime` uvnitř instalační složky |
 
-Pro odinstalaci aplikaci ukončete, uchovejte vlastní výsledky a celou složku přesuňte do Koše. Neinstaluje se systémová služba ani automatické spouštění. Výsledky uložené v jiných složkách zůstanou zachované.
+Model je připnutý na konkrétní revizi `860e87183ceb29e39627c0612ebd66d8ea66e68c` repozitáře [mlx-community/flux2-klein-4b-4bit](https://huggingface.co/mlx-community/flux2-klein-4b-4bit/tree/860e87183ceb29e39627c0612ebd66d8ea66e68c). Instalátor ověřuje instalační balíček, všech 63 balíčků knihoven a všech 13 modelových souborů pomocí SHA-256. Úplné licenční texty přibalených součástí jsou součástí distribuce; přehled je v [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Po dokončení instalace se při běžném kolorování nic dalšího nestahuje. Fotografie a jejich textové zadání se zpracovávají v Macu.
+
+## Přerušené stažení
+
+Znovu spusť **Instalovat.command** ve stejné složce. Instalátor ověří přítomné soubory a pokračuje ve stahování chybějících nebo neúplných vah. Kvůli běžnému přerušení není potřeba mazat celou instalaci.
+
+Na Macu s 16 GB RAM pro první fotografii použij barevný vzor **512 px** a **1 variantu**. Před náročnějším výpočtem zavři ostatní aplikace s vysokou spotřebou paměti.
+
+## Aktualizace
+
+1. Ulož rozpracované výsledky a bicolor zavři.
+2. Nové vydání rozbal do samostatné složky a proveď jeho instalaci.
+3. Původní složku ponech, dokud novou verzi neověříš.
+
+Nemíchej ručně knihovny a programové soubory různých vydání. Instalační složka obsahuje také lokální předvolby; nová samostatná složka začíná vlastními předvolbami.
+
+## Odinstalace
+
+Zavři bicolor. Vlastní fotografie a výsledky, které chceš zachovat, přesuň mimo instalační složku. Potom celou složku programu přesuň do Koše. Obsahuje také stažený model, prostředí, předvolby a pracovní soubory. Fotografie uložené v jiných adresářích tím nejsou dotčené.

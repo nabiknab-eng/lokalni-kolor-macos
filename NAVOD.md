@@ -1,41 +1,152 @@
-# Lokální Kolor — stručný návod
+# bicolor 1.9.1 — ovládání a práce s fotografiemi
 
-## Spuštění
+[Popis programu](README.md) · [Instalace](INSTALACE.md)
 
-Ve Finderu otevřete **Lokální Kolor.app** dvojklikem. Alternativou je `Spustit.command`. Před prvním spuštěním použijte `Instalovat.command`; poté není potřeba zadávat příkazy do Terminálu ani být administrátorem. Přemisťujte celou složku `LokalniKolor`, protože `.app` používá přibalený Python, knihovny a model v sousedních složkách.
+## Jak kolorování funguje
 
-## Jedna fotografie
+AI nejprve vytvoří malý barevný vzor. Program z něj převezme barvy a přenese je na původní fotografii, podle jejího jasu a hran. Geometrie, kresba a zrno vycházejí z původního snímku. Velikost vzoru se proto liší od velikosti výsledku: například fotografie 4000 × 3000 pixelů se uloží v těchto rozměrech i při vzoru 512 px.
 
-1. Klikněte na **Otevřít fotografii…** nebo fotografii přetáhněte do okna. Podporované formáty jsou JPEG, PNG a jednostránkový TIFF.
-2. Začněte velikostí **512 px**. Jde o velikost barevného návrhu; uložená fotografie zachová plné rozlišení originálu. 768 a 1024 px jsou podrobnější a potřebují více paměti i času.
-3. V pokynech ponechte základní prompt a připojte známé skutečnosti o barvách. Například: `The coat is dark navy, the shirt is white, the car is burgundy red.` Model lépe rozumí konkrétním pokynům v angličtině. Doložené barvy jsou důležitější než dlouhý obecný popis.
-4. Klikněte na **Vytvořit 3 varianty**. Varianty vzniknou se třemi různými seedy. První úloha načítá model; další fotografie se stejnými pokyny jej využijí z paměti.
-5. Vyberte variantu **1–3** a nastavte sytost v rozsahu **0–150 %**. Změna sytosti nepouští znovu AI. Hodnota 0 % vytvoří neutrální obraz s původním jasem.
-6. Prohlédněte si fotografie **Vedle sebe** nebo přepněte na **Před / po** a použijte posuvník pod obrazem. Zkontrolujte zejména pleť, vlasy, okraje oděvů a malé předměty.
-7. Zvolte **PNG · 16 bitů** nebo **TIFF · 16 bitů**, klikněte na **Uložit…** a vyberte cílovou složku. JPEG je vhodný pro sdílení, ale jeho ztrátová komprese mění i jas.
+Ze samotné černobílé fotografie obvykle nelze určit skutečné barvy. Výsledky jsou odhadem. Model může zaměnit oděv, pleť nebo pozadí; doložené barvy připiš do pokynů a výsledek vždy zkontroluj.
 
-Výstup má název `puvodni_nazev_kolor.png` (případně `.tiff` či `.jpg`). Při shodě názvu aplikace přidá číslo. Existující soubor ani originál nikdy nepřepíše. Výchozí složka výsledků je `vysledky/`; tlačítko **Otevřít výsledky** otevře naposledy vybranou složku.
+## Otevření a základní nastavení
 
-## Dávka
+| Ovladač | Co dělá |
+| --- | --- |
+| **Otevřít fotografii…** | Otevře jeden snímek. Fotografii lze také přetáhnout do okna. Nový vstup nahradí neuložené varianty aktuální fotografie. |
+| **Dávkové zpracování…** | Otevře samostatný dialog pro více souborů. Zadání složek a spuštění dávky jsou popsané níže. |
+| **Název fotografie** | Ukazuje aktuální soubor. Dlouhý název se zkrátí uprostřed; celý je v nápovědě po najetí myší. |
+| **Negativ** | Vratně digitálně převrátí černobílý negativ. Přepnutí zahodí dosavadní neuložené barevné varianty. Pokud ještě žádné varianty nejsou, lze uložit samotný pozitiv. |
+| **Barevný vzor** | Velikost barevného návrhu AI: **512, 768 nebo 1024 px**. Výchozích 512 px je nejúspornější. Vyšší hodnota může změnit návrh barev, ale nezaručuje lepší výsledek. |
+| **Počet variant** | Vytvoří **1 až 3** návrhy. Více variant znamená více výpočtů. Změna čísla sama nezačne kolorovat. |
+| **Seedy** | Startovní čísla generátoru náhody, oddělená čárkami. Počet odpovídá zvolenému počtu variant. Seznam se při změně počtu doplní nebo zkrátí. |
+| **Vytvořit … variantu / varianty** | Spustí nové kolorování podle aktuálního vstupu, vzoru, seedů a pokynů. Předchozí neuložené návrhy nahradí. |
+| **Sytost** v záložce Kolorování | Síla přenosu barev do výsledku, v rozsahu **0–150 %**. Výchozí je 100 %, při 0 % je obraz neutrální. Změna hotové varianty nepouští AI znovu. |
+| **Pokyny a doložené barvy** | Textové zadání pro AI. Ponech základní instrukce a doplň konkrétní známé barvy nebo požadované přirozené podání. |
 
-Klikněte na **Zpracovat složku…**, vyberte vstupní a potom výstupní složku. Dávka používá právě zvolené pokyny, rozlišení, sytost, formát a seedy. Z každého snímku uloží tři finální barevné varianty; druhá a třetí mají přípony `_kolor_v2` a `_kolor_v3`.
+Negativ je jednoduché převrácení. Neodstraňuje oranžovou masku barevného filmu a neprovádí kalibraci skeneru ani automatickou tonální rekonstrukci.
 
-Dávka prochází pouze soubory přímo ve zvolené složce. Podsložky neprochází. Názvy odpovídající vlastním výstupům `_kolor`, `_flux_seed…` a `_nahled_v…` vynechá, aby opakovaně nekolorovala výsledky. Jedna vadná fotografie nezastaví zbytek dávky; chyby jsou v závěrečném oznámení a souboru `davka*.json`.
+### Co znamenají seedy
 
-Dávka ukládá také diagnostické podklady: `_flux_seed…` je generativní barevný návrh, `_nahled_v…` náhled a `*_mereni.json` obsahuje nastavení a měření. Pro archivaci používejte finální soubory **`*_kolor*`**. Surový FLUX návrh může měnit kresbu, a proto jej nepovažujte za věrnou finální fotografii.
+Výchozí seedy jsou `42, 43, 44`. Číslo neznamená kvalitu, sílu ani konkrétní barvu. Vyšší seed není lepší. Každý seed musí být celé číslo **0–4294967295**, seedy musí být různé a musí jich být právě zvolený počet.
 
-## Zrušení a paměť
+Pro srovnání dvou textových zadání můžeš nechat stejné seedy. Příklad vlastního zadání je `7, 125, 8000`. Pokud rozepsaný seznam není platný, oprav jej před spuštěním; program jej při změně počtu svévolně nepřepíše.
 
-Tlačítko **Zrušit** ukončí výpočetní proces a uvolní jeho paměť. Rozpracovaná fotografie se neuloží jako finální výsledek; hotové soubory z předchozích snímků dávky zůstanou. Další úloha znovu načte model. Při změně promptu se také znovu načte nativní enkodér; mezi fotografiemi se stejným promptem zůstává obrazový model načtený.
+### Příklady doplnění pokynů
 
-Na tomto MacBooku Air M5 měl úsporný režim při 1024 px špičku přibližně 8,04 GB paměti MLX. Pro běžnou práci je výchozích 512 px vhodnější. U velmi velkých skenů spotřebuje další paměť přenos barev v plném rozlišení a náhledy. Pokud macOS zároveň používá další náročné aplikace, zvolte menší barevný návrh.
+Základní text žádá přirozené kolorování při zachování původní fotografie. Na jeho konec přidej krátké věty. Angličtina odpovídá výchozímu zadání, například:
 
-## Co výsledek zaručuje a co vyžaduje kontrolu
+| Co chceš upřesnit | Příklad |
+| --- | --- |
+| Oděv | `The woman's coat is navy blue. Her blouse is ivory white.` |
+| Více osob | `The man on the viewer's left wears a brown jacket. The child wears a light blue shirt.` |
+| Pleť | `Use natural skin colors with subtle variation. Keep shaded skin subdued, without green or purple casts.` |
+| Pozadí | `The plaster wall is warm off-white. The window frames are dark green.` |
+| Předmět | `The bicycle frame is dark red. The leather saddle is brown.` |
 
-Finální jasová složka L* pochází z originálu; AI se používá pouze pro barevný návrh. Originál se neostří, nevyhlazuje a neprovádí se rekonstrukce obličeje. V testovaných 16bitových PNG byla maximální chyba L* menší než 0,001 na stupnici 0–100.
+Osobu nebo předmět určuj polohou a jasnými znaky. Popis nemusí model vždy dodržet a samotný text nezaručí přesnou hranici barev. Změna pokynů začne platit až po novém stisknutí **Vytvořit**.
 
-Barvy zůstávají odhadem. Bez konkrétního kontextu model například obarvil původně oranžový skafandr na zeleno. Pokyny s doloženou oranžovou barvou výsledek podstatně zlepšily. Ani shodný jas neprokazuje správnost barevných hranic: chybný návrh může obarvit nesprávnou část obličeje nebo předmětu. Takový výsledek nepoužívejte jako historický důkaz.
+## Záložka Kolorování
 
-Všechny výpočty běží v tomto Macu, bez inferenčního API. Připravený model funguje bez internetu; bylo to ověřeno i s připojením zablokovaným na úrovni macOS.
+Vlevo je **Originál**, případně **Pozitiv z negativu**; vpravo **Kolorováno**. Vyber jednu z hotových variant tlačítky **Varianta 1 / 2 / 3** vpravo nad fotografiemi. Zvýrazněné číslo označuje aktuální variantu. Po najetí na číslo se zobrazí seed a čas generování.
 
-Další podrobnosti jsou v `NASTAVENI.md` a `INSTALACE.md`.
+Samotné přepnutí hotové varianty nepouští AI znovu. Při změně sytosti nebo výřezu může být potřeba dopočítat nový náhled. Ovládání může být během přípravy nového podkladu dočasně zablokované.
+
+**Uložit kolorování…** uloží vybranou variantu s hodnotou sytosti z této záložky.
+
+## Záložka Úpravy
+
+Vlevo je pevná reference **Varianta · sytost 100 %**, vpravo **Upraveno**. Reference patří právě vybrané variantě a nemění ji sytost z první záložky ani nastavení čtyř táhel.
+
+| Táhlo | Výchozí hodnota | Rozsah | Účinek |
+| --- | ---: | ---: | --- |
+| **Sytost** | 100 % | 0–150 % | Zeslabí nebo zesílí barvy. Při 0 % odstraní i barevný posun teploty. |
+| **Jas** | 0 | −50 až +50 | Ztmaví nebo zesvětlí obraz. |
+| **Kontrast** | 0 % | −100 až +100 % | Záporné hodnoty zjemní rozdíly světel a stínů, kladné je zesílí. |
+| **Teplota** | 0 | −100 až +100 | Doleva chladnější, doprava teplejší podání. Hodnota je relativní posun, nikoli teplota v kelvinech. |
+
+Při výchozích hodnotách jsou oba obrazy stejné. Každý přepočet vychází z pevné reference, takže se chyby nesčítají opakovaným posouváním. Při změně varianty zůstanou polohy táhel zachované a vztáhnou se k její vlastní referenci.
+
+**Uložit úpravy…** uloží celý pravý obraz se všemi čtyřmi hodnotami. Sytost z první záložky se do tohoto výsledku nepřidává.
+
+## Zoom a porovnání
+
+| Ovladač nebo gesto | Účinek |
+| --- | --- |
+| **Přizpůsobit oknu** | Ukáže celou fotografii podle dostupného místa. |
+| **12,5–800 %** | Pevné zvětšení; při **100 %** odpovídá jeden pixel fotografie jednomu fyzickému pixelu displeje, i na Retině. |
+| **− / +** | Postupně mění zoom. |
+| **Kolečko myši** | Mění zoom. |
+| **Tažení zvětšeného obrazu** | Společně posouvá oba porovnávané výřezy. |
+| **Dvojklik** | Přepne mezi 100 % a přizpůsobením oknu. |
+| **Posun dvěma prsty na trackpadu** | Ve zvětšeném pohledu posouvá výřez. S Ctrl nebo ⌘ mění zoom. |
+
+Náhled se počítá pro displej, při zoomu pro viditelný výřez. Připravené obrazy a jejich úpravy se uchovávají v omezené paměti pro rychlejší návrat. Zmenšený náhled se může na jemných kontrastních hranách mírně lišit od zmenšeného finálního exportu. Pro posouzení těchto míst použij 100% detail.
+
+Uložení vždy znovu připraví celý přesný obraz z původních dat. Rozměry souboru neomezují velikost okna, zoom ani zmenšený náhled.
+
+## Uložení a barevné prostory
+
+Blok **Uložení** je připnutý dole vlevo a zůstává dostupný v obou záložkách. Před uložením vyber formát a barevný prostor.
+
+| Volba | Kdy ji použít |
+| --- | --- |
+| **Adobe RGB (1998)** | Pro další práci v editoru se správou barev a postup, který s Adobe RGB počítá. Je výchozí volbou. |
+| **sRGB** | Pro běžné sdílení a zobrazení. |
+| **PNG · 16 bitů** | Bezeztrátový soubor pro jemné tóny, kresbu a další úpravy. |
+| **TIFF · 16 bitů** | Bezeztrátový soubor pro fotografický pracovní postup. |
+| **JPEG · 8 bitů** | Menší ztrátový soubor pro sdílení. |
+| **HEIC · 8 bitů** | Menší ztrátový soubor pro prostředí podporující HEIC. |
+| **Otevřít výsledky** | Otevře poslední výstupní složku ve Finderu. |
+
+Vzorky se při exportu skutečně převedou do vybraného prostoru a vloží se ICC profil. Náhled používá sRGB. Adobe RGB nepřidává nové doložené barvy ani detaily nad rámec návrhu AI.
+
+Originál se nepřepisuje. Výstup má například jméno `foto_kolor.png`, upravený snímek `foto_upraveno.png` nebo samostatný pozitiv `foto_pozitiv.png`. Při shodě názvu vznikne další očíslovaný soubor.
+
+Poslední **vstupní a výstupní složka** se pamatují i po restartu a sdílejí se s dávkou. Zrušení samotného výběru složky nic nepřepíše. Pokud dříve zapamatovaná složka není dostupná, nabídne se dostupné výchozí umístění.
+
+## Dávkové zpracování
+
+1. Nejdřív v hlavním okně nastav **Barevný vzor**, **Počet variant**, **Seedy**, **Pokyny**, výstupní formát a barevný prostor. Pro negativy nastav také **Negativ**.
+2. Klikni na **Dávkové zpracování…**.
+3. Zkontroluj **Vstupní složku — původní fotografie** a **Výstupní složku — uložené výsledky**. Předvyplňují se poslední použité adresáře, případně je změň.
+4. Zkontroluj počet vstupů, počet variant na fotografii a celkový počet výsledků.
+5. Stiskni **Spustit dávku**. Pouhý výběr složek výpočet nespustí.
+
+Dávka ukládá **pouze čisté kolorované varianty při sytosti 100 %**, bez následných úprav táhly. Každý snímek dostane zvolený počet variant ve vybraném formátu a ICC prostoru. Do cílové složky se nepřidávají pracovní náhledy, návrhy AI ani diagnostické JSON soubory.
+
+Nastavení pokynů, seedů, velikosti vzoru a přepínače **Negativ** platí pro celou dávku. Pro rozdílná zadání nebo smíšené pozitivy a negativy připrav samostatné dávky.
+
+Podsložky se neprocházejí. Soubory s názvy odpovídajícími vlastním vygenerovaným výsledkům program vynechává; pro přehlednost používej zvláštní vstupní a výstupní složku. Dávka nabízí spuštění až při platných složkách a alespoň jednom podporovaném vstupu.
+
+**Zrušit** v dialogu zavře nastavení bez spuštění. Pokud jsi v něm předtím vybral nové platné adresáře, zůstanou zapamatované. Tlačítko **Zrušit** během samotného zpracování zastaví výpočet; již uložené výsledky zůstanou. Další výpočet může znovu načítat model.
+
+## Podporované vstupy a omezení
+
+Vstupní přípony jsou **.jpg, .jpeg, .jpe, .jfif, .png, .tif, .tiff, .heic, .heif, .hif, .bmp, .webp a .avif**. Velikost písmen nerozhoduje. Limit fotografie je **80 milionů pixelů**.
+
+Z HEIC/HEIF se používá hlavní SDR fotografie a zohledňuje se její orientace. Výstup HEIC je 8bitový; vyšší vstupní bitová hloubka, HDR gain mapy a hloubkové mapy se tímto pracovním postupem nezachovávají. Vícestránkový TIFF a animované vstupy nejprve rozlož na samostatné snímky. Částečně průhledné fotografie nejprve sluč s pozadím.
+
+Přenos podle jasu a hran nerozpoznává dokonale hranice skutečných objektů. Dvě plochy podobného jasu mohou přijmout barvu ze sousedství. Více variant, menší sytost a přesnější pokyny mohou pomoci s výběrem, ale nejsou zárukou správné pleti nebo historicky přesné barvy.
+
+## Kdy je potřeba nový výpočet AI
+
+| Změna | Nové stisknutí Vytvořit |
+| --- | --- |
+| Jiná fotografie, pokyny, seedy nebo velikost vzoru | Ano |
+| Jiný počet budoucích variant | Ano, pro vytvoření nových návrhů |
+| Výběr již hotové varianty | Ne |
+| Sytost, jas, kontrast nebo teplota hotové varianty | Ne |
+| Zoom nebo posun | Ne |
+| Formát a barevný prostor při uložení | Ne |
+
+## Běžné potíže
+
+**Málo paměti nebo zastavený výpočet:** zavři ostatní náročné aplikace, vyber 512 px a jednu variantu. Paměťová ochrana může zastavit pracovní proces; již uložené výsledky zachová.
+
+**Přepnutí nebo nové nastavení chvíli trvá:** připravené obrazy se vracejí z paměti. Nová varianta, dosud nepřipravená sytost nebo výřez vyžadují výpočet náhledu. První načtení modelu po spuštění bývá delší než další práce.
+
+**Nečekané barvy:** ověř jinou variantu, sniž sytost a upřesni zadání. Jasové hrany nejsou úplnou informací o skutečných objektech.
+
+**Chybí model nebo instalace není dokončená:** znovu spusť **Instalovat.command** ve stejné složce. [Instalační postup](INSTALACE.md).
+
+Před otevřením jiné fotografie, novým generováním nebo zavřením si vybraný výsledek ulož. Program automaticky neobnovuje rozpracované neuložené varianty jako projekt.
